@@ -89,26 +89,6 @@ public class Gps103ProtocolDecoder extends BaseProtocolDecoder {
             .any()
             .compile();
 
-    private static final Pattern PATTERN_OBD = new PatternBuilder()
-            .text("imei:")
-            .number("(d+),")                     // imei
-            .expression("OBD,")                  // type
-            .number("(dd)(dd)(dd)")              // date (yymmdd)
-            .number("(dd)(dd)(dd),")             // time (hhmmss)
-            .number("(d+)?,")                    // odometer
-            .number("(d+.d+)?,")                 // fuel instant
-            .number("(d+.d+)?,")                 // fuel average
-            .number("(d+)?,")                    // hours
-            .number("(d+),")                     // speed
-            .number("(d+.?d*%),")                // power load
-            .number("(?:([-+]?d+)|[-+]?),")      // temperature
-            .number("(d+.?d*%),")                // throttle
-            .number("(d+),")                     // rpm
-            .number("(d+.d+),")                  // battery
-            .number("([^;]*)")                   // dtcs
-            .any()
-            .compile();
-
     private static final Pattern PATTERN_ALT = new PatternBuilder()
             .text("imei:")
             .number("(d+),")                     // imei
@@ -272,41 +252,6 @@ public class Gps103ProtocolDecoder extends BaseProtocolDecoder {
         return position;
     }
 
-    private Position decodeObd(Channel channel, SocketAddress remoteAddress, String sentence) {
-
-        Parser parser = new Parser(PATTERN_OBD, sentence);
-        if (!parser.matches()) {
-            return null;
-        }
-
-        DeviceSession deviceSession = getDeviceSession(channel, remoteAddress, parser.next());
-        if (deviceSession == null) {
-            return null;
-        }
-
-        Position position = new Position(getProtocolName());
-        position.setDeviceId(deviceSession.getDeviceId());
-
-        getLastLocation(position, parser.nextDateTime());
-
-        position.set(Position.KEY_ODOMETER, parser.nextInt(0));
-        parser.nextDouble(0); // instant fuel consumption
-        position.set(Position.KEY_FUEL_CONSUMPTION, parser.nextDouble(0));
-        if (parser.hasNext()) {
-            position.set(Position.KEY_HOURS, UnitsConverter.msFromHours(parser.nextInt()));
-        }
-        position.set(Position.KEY_OBD_SPEED, parser.nextInt(0));
-        position.set(Position.KEY_ENGINE_LOAD, parser.next());
-        position.set(Position.KEY_COOLANT_TEMP, parser.nextInt());
-        position.set(Position.KEY_THROTTLE, parser.next());
-        position.set(Position.KEY_RPM, parser.nextInt(0));
-        position.set(Position.KEY_BATTERY, parser.nextDouble(0));
-        position.set(Position.KEY_DTCS, parser.next().replace(',', ' ').trim());
-
-        return position;
-    }
-
-
     private Position decodeAlternative(Channel channel, SocketAddress remoteAddress, String sentence) {
 
         Parser parser = new Parser(PATTERN_ALT, sentence);
@@ -344,39 +289,6 @@ public class Gps103ProtocolDecoder extends BaseProtocolDecoder {
         position.set("error", parser.next());
 
         return position;
-    }
-
-    private Position decodePhoto(Channel channel, SocketAddress remoteAddress, String sentence) {
-
-        String imei = sentence.substring(5, 5 + 15);
-        DeviceSession deviceSession = getDeviceSession(channel, remoteAddress, imei);
-        if (deviceSession == null) {
-            return null;
-        }
-
-        ByteBuf buf = Unpooled.wrappedBuffer(DataConverter.parseHex(
-                sentence.substring(24, sentence.endsWith(";") ? sentence.length() - 1 : sentence.length())));
-        int index = buf.readUnsignedShortLE();
-        photo.writeBytes(buf, buf.readerIndex() + 2, buf.readableBytes() - 4);
-
-        if (index + 1 >= photoPackets) {
-            Position position = new Position(getProtocolName());
-            position.setDeviceId(deviceSession.getDeviceId());
-
-            getLastLocation(position, null);
-
-            try {
-                position.set(Position.KEY_IMAGE, Context.getMediaManager().writeFile(imei, photo, "jpg"));
-            } finally {
-                photoPackets = 0;
-                photo.release();
-                photo = null;
-            }
-
-            return position;
-        } else {
-            return null;
-        }
     }
 
     @Override
