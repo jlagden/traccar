@@ -23,9 +23,9 @@ import org.traccar.PipelineBuilder;
 import org.traccar.TrackerServer;
 import org.traccar.model.Command;
 
-public class Gps103Protocol extends BaseProtocol {
+public class RewireProtocol extends BaseProtocol {
 
-    public Gps103Protocol() {
+    public RewireProtocol() {
         setSupportedDataCommands(
                 Command.TYPE_CUSTOM,
                 Command.TYPE_POSITION_SINGLE,
@@ -42,8 +42,8 @@ public class Gps103Protocol extends BaseProtocol {
                 pipeline.addLast(new CharacterDelimiterFrameDecoder(2048, false, "\r\n", "\n", ";", "*"));
                 pipeline.addLast(new StringEncoder());
                 pipeline.addLast(new StringDecoder());
-                pipeline.addLast(new Gps103ProtocolEncoder(Gps103Protocol.this));
-                pipeline.addLast(new Gps103ProtocolDecoder(Gps103Protocol.this));
+                pipeline.addLast(new RewireProtocolEncoder(RewireProtocol.this));
+                pipeline.addLast(new RewireProtocolDecoder(RewireProtocol.this));
             }
         });
         addServer(new TrackerServer(true, getName()) {
@@ -51,8 +51,8 @@ public class Gps103Protocol extends BaseProtocol {
             protected void addProtocolHandlers(PipelineBuilder pipeline) {
                 pipeline.addLast(new StringEncoder());
                 pipeline.addLast(new StringDecoder());
-                pipeline.addLast(new Gps103ProtocolEncoder(Gps103Protocol.this));
-                pipeline.addLast(new Gps103ProtocolDecoder(Gps103Protocol.this));
+                pipeline.addLast(new RewireProtocolEncoder(RewireProtocol.this));
+                pipeline.addLast(new RewireProtocolDecoder(RewireProtocol.this));
             }
         });
     }
