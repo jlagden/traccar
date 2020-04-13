@@ -76,6 +76,7 @@ public class Gps103ProtocolDecoder extends BaseProtocolDecoder {
             .number("(d+)(dd.d+),")              // longitude (dddmm.mmmm)
             .expression("([EW])?,").optional()
             .number("(d+.?d*)?").optional()      // speed
+            .number("d+%")                       // battery percentage
             .number(",(d+.?d*)?").optional()     // course
             .number(",(-?d+.?d*)?").optional()   // altitude
             .number(",([01])?").optional()       // ignition
