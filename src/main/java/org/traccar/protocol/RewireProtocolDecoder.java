@@ -37,14 +37,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RewireProtocolDecoder extends BaseProtocolDecoder {
-
+    
     private int photoPackets = 0;
     private ByteBuf photo;
 
     public RewireProtocolDecoder(Protocol protocol) {
         super(protocol);
     }
-
+    
     private static final Pattern PATTERN = new PatternBuilder()
             .text("imei:")
             .number("(d+),")                     // imei
@@ -89,7 +89,7 @@ public class RewireProtocolDecoder extends BaseProtocolDecoder {
             .groupEnd()
             .any()
             .compile();
-
+    
     private static final Pattern PATTERN_OBD = new PatternBuilder()
             .text("imei:")
             .number("(d+),")                     // imei
