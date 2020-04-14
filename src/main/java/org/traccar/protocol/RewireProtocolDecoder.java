@@ -256,7 +256,7 @@ public class RewireProtocolDecoder extends BaseProtocolDecoder {
             position.setLatitude(parser.nextCoordinate(Parser.CoordinateFormat.HEM_DEG_MIN_HEM));
             position.setLongitude(parser.nextCoordinate(Parser.CoordinateFormat.HEM_DEG_MIN_HEM));
             position.setSpeed(parser.nextDouble(0));
-            position.set(Position.KEY_BATTERY_LEVEL,parser.nextInt());
+            position.set(Position.KEY_BATTERY_LEVEL, parser.nextInt());
             position.setCourse(parser.nextDouble(0));
             position.setAltitude(parser.nextDouble(0));
 
@@ -336,7 +336,7 @@ public class RewireProtocolDecoder extends BaseProtocolDecoder {
         position.setLatitude(parser.nextDouble());
         position.setLongitude(parser.nextDouble());
         position.setSpeed(UnitsConverter.knotsFromKph(parser.nextInt()));
-        position.set(Position.KEY_BATTERY_LEVEL,parser.nextInt());
+        position.set(Position.KEY_BATTERY_LEVEL, parser.nextInt());
         position.setCourse(parser.nextInt());
         position.setAltitude(parser.nextInt());
 
