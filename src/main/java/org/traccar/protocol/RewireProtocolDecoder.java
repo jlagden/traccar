@@ -274,6 +274,40 @@ public class RewireProtocolDecoder extends BaseProtocolDecoder {
 
         return position;
     }
+    
+    private Position decodeObd(Channel channel, SocketAddress remoteAddress, String sentence) {
+
+        Parser parser = new Parser(PATTERN_OBD, sentence);
+        if (!parser.matches()) {
+            return null;
+        }
+
+        DeviceSession deviceSession = getDeviceSession(channel, remoteAddress, parser.next());
+        if (deviceSession == null) {
+            return null;
+        }
+
+        Position position = new Position(getProtocolName());
+        position.setDeviceId(deviceSession.getDeviceId());
+
+        getLastLocation(position, parser.nextDateTime());
+
+        position.set(Position.KEY_ODOMETER, parser.nextInt(0));
+        parser.nextDouble(0); // instant fuel consumption
+        position.set(Position.KEY_FUEL_CONSUMPTION, parser.nextDouble(0));
+        if (parser.hasNext()) {
+            position.set(Position.KEY_HOURS, UnitsConverter.msFromHours(parser.nextInt()));
+        }
+        position.set(Position.KEY_OBD_SPEED, parser.nextInt(0));
+        position.set(Position.KEY_ENGINE_LOAD, parser.next());
+        position.set(Position.KEY_COOLANT_TEMP, parser.nextInt());
+        position.set(Position.KEY_THROTTLE, parser.next());
+        position.set(Position.KEY_RPM, parser.nextInt(0));
+        position.set(Position.KEY_BATTERY, parser.nextDouble(0));
+        position.set(Position.KEY_DTCS, parser.next().replace(',', ' ').trim());
+
+        return position;
+    }
 
     private Position decodeAlternative(Channel channel, SocketAddress remoteAddress, String sentence) {
 
