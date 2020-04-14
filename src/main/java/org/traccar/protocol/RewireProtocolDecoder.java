@@ -348,6 +348,39 @@ public class RewireProtocolDecoder extends BaseProtocolDecoder {
         return position;
     }
 
+    private Position decodePhoto(Channel channel, SocketAddress remoteAddress, String sentence) {
+
+        String imei = sentence.substring(5, 5 + 15);
+        DeviceSession deviceSession = getDeviceSession(channel, remoteAddress, imei);
+        if (deviceSession == null) {
+            return null;
+        }
+
+        ByteBuf buf = Unpooled.wrappedBuffer(DataConverter.parseHex(
+                sentence.substring(24, sentence.endsWith(";") ? sentence.length() - 1 : sentence.length())));
+        int index = buf.readUnsignedShortLE();
+        photo.writeBytes(buf, buf.readerIndex() + 2, buf.readableBytes() - 4);
+
+        if (index + 1 >= photoPackets) {
+            Position position = new Position(getProtocolName());
+            position.setDeviceId(deviceSession.getDeviceId());
+
+            getLastLocation(position, null);
+
+            try {
+                position.set(Position.KEY_IMAGE, Context.getMediaManager().writeFile(imei, photo, "jpg"));
+            } finally {
+                photoPackets = 0;
+                photo.release();
+                photo = null;
+            }
+
+            return position;
+        } else {
+            return null;
+        }
+    }
+    
     @Override
     protected Object decode(
             Channel channel, SocketAddress remoteAddress, Object msg) throws Exception {
