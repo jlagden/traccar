@@ -36,12 +36,12 @@ import java.net.SocketAddress;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Gps103ProtocolDecoder extends BaseProtocolDecoder {
+public class RewireProtocolDecoder extends BaseProtocolDecoder {
 
     private int photoPackets = 0;
     private ByteBuf photo;
 
-    public Gps103ProtocolDecoder(Protocol protocol) {
+    public RewireProtocolDecoder(Protocol protocol) {
         super(protocol);
     }
 
