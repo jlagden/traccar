@@ -76,7 +76,7 @@ public class RewireProtocolDecoder extends BaseProtocolDecoder {
             .number("(d+)(dd.d+),")              // longitude (dddmm.mmmm)
             .expression("([EW])?,").optional()
             .number("(d+.?d*)?").optional()      // speed
-            .number(",(d+)%")                    // battery percentage
+            .number(",(d+)%").optional()         // battery percentage
             .number(",(d+.?d*)?").optional()     // course
             .number(",(-?d+.?d*)?").optional()   // altitude
             .number(",([01])?").optional()       // ignition
@@ -90,6 +90,26 @@ public class RewireProtocolDecoder extends BaseProtocolDecoder {
             .any()
             .compile();
 
+    private static final Pattern PATTERN_OBD = new PatternBuilder()
+            .text("imei:")
+            .number("(d+),")                     // imei
+            .expression("OBD,")                  // type
+            .number("(dd)(dd)(dd)")              // date (yymmdd)
+            .number("(dd)(dd)(dd),")             // time (hhmmss)
+            .number("(d+)?,")                    // odometer
+            .number("(d+.d+)?,")                 // fuel instant
+            .number("(d+.d+)?,")                 // fuel average
+            .number("(d+)?,")                    // hours
+            .number("(d+),")                     // speed
+            .number("(d+.?d*%),")                // power load
+            .number("(?:([-+]?d+)|[-+]?),")      // temperature
+            .number("(d+.?d*%),")                // throttle
+            .number("(d+),")                     // rpm
+            .number("(d+.d+),")                  // battery
+            .number("([^;]*)")                   // dtcs
+            .any()
+            .compile();
+    
     private static final Pattern PATTERN_ALT = new PatternBuilder()
             .text("imei:")
             .number("(d+),")                     // imei
@@ -104,6 +124,7 @@ public class RewireProtocolDecoder extends BaseProtocolDecoder {
             .number("(-?d+.d+),")                // latitude
             .number("(-?d+.d+),")                // longitude
             .number("(d+),")                     // speed
+            .number(",(d+)%")                    // battery percentage
             .number("(d+),")                     // course
             .number("(-?d+),")                   // altitude
             .number("(d+.d+),")                  // hdop
