@@ -37,14 +37,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RewireProtocolDecoder extends BaseProtocolDecoder {
-    
+	
     private int photoPackets = 0;
     private ByteBuf photo;
-
+	
     public RewireProtocolDecoder(Protocol protocol) {
         super(protocol);
     }
-    
+	
     private static final Pattern PATTERN = new PatternBuilder()
             .text("imei:")
             .number("(d+),")                     // imei
@@ -89,7 +89,7 @@ public class RewireProtocolDecoder extends BaseProtocolDecoder {
             .groupEnd()
             .any()
             .compile();
-    
+	
     private static final Pattern PATTERN_OBD = new PatternBuilder()
             .text("imei:")
             .number("(d+),")                     // imei
@@ -109,7 +109,7 @@ public class RewireProtocolDecoder extends BaseProtocolDecoder {
             .number("([^;]*)")                   // dtcs
             .any()
             .compile();
-    
+	
     private static final Pattern PATTERN_ALT = new PatternBuilder()
             .text("imei:")
             .number("(d+),")                     // imei
@@ -274,7 +274,7 @@ public class RewireProtocolDecoder extends BaseProtocolDecoder {
 
         return position;
     }
-    
+	
     private Position decodeObd(Channel channel, SocketAddress remoteAddress, String sentence) {
 
         Parser parser = new Parser(PATTERN_OBD, sentence);
@@ -381,7 +381,7 @@ public class RewireProtocolDecoder extends BaseProtocolDecoder {
             return null;
         }
     }
-    
+	
     @Override
     protected Object decode(
             Channel channel, SocketAddress remoteAddress, Object msg) throws Exception {
